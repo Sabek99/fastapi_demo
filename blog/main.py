@@ -1,5 +1,3 @@
-import email
-import re
 from typing import List
 from pyexpat import model
 from turtle import title
@@ -10,7 +8,6 @@ from blog import hashing
 from . import schemas, models,hashing
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
-import blog
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -37,8 +34,8 @@ def get_db():
     
 
 @app.post('/blog',status_code=status.HTTP_201_CREATED,tags=['blogs'])
-def create(request:schemas.Blog, db:Session = Depends(get_db)):
-    new_blog = models.Blog(title = request.title, body = request.body)
+def create(request:schemas.BLog, db:Session = Depends(get_db)):
+    new_blog = models.Blog(title = request.title, body = request.body, user_id=1)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
@@ -62,7 +59,7 @@ def getBlog(id, response:Response, db:Session = Depends(get_db)):
 
 
 @app.put('/blog/{id}', status_code = status.HTTP_202_ACCEPTED,tags=['blogs'])
-def updateBlog(id, request:schemas.Blog, db:Session = Depends(get_db)):
+def updateBlog(id, request:schemas.BLog, db:Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id)
 
     if not blog.first():
@@ -93,9 +90,11 @@ def createUser(request:schemas.User, db:Session = Depends(get_db)):
 def getUsers(db:Session = Depends(get_db)):
     return db.query(models.User).all()
 
+
 @app.get('/user/{id}', response_model= schemas.ShowUser,tags=["users"])
-def detUser(id:int,db:Session = Depends(get_db)):
+def getUser(id:int,db:Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user :
          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"User with this Id {id} is not found!") 
     return user
+
