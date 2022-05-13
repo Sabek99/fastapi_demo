@@ -1,7 +1,4 @@
-import email
 from typing import List
-from unicodedata import name
-from fastapi import Body
 from pydantic import BaseModel
 
 class BlogBase(BaseModel):
